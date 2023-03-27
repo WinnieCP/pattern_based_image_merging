@@ -37,16 +37,21 @@ def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = No
     img_1 =  reshape_img(ImageOps.exif_transpose(images[0]), output_dims)
     img_2 = reshape_img(ImageOps.exif_transpose(images[1]), output_dims)
 
-    if mirror['left']:
-        img_1[:,int(output_dims[1]/2):] = img_1[:,int(output_dims[1]/2):0:-1]
-        img_2[:,int(output_dims[1]/2):] = img_2[:,int(output_dims[1]/2):0:-1]
-    if mirror['right']:
-        img_1[:,int(output_dims[1]/2):0:-1] = img_1[:,int(output_dims[1]/2):]
-        img_2[:,int(output_dims[1]/2):0:-1] = img_2[:,int(output_dims[1]/2):]
-
     # binarize the pattern
     layer_1 = grey_scale_pattern > threshold
     layer_2 = grey_scale_pattern <= threshold 
+
+    if mirror['left']:
+        img_1[:,int(output_dims[1]/2):] = img_1[:,int(output_dims[1]/2):0:-1]
+        img_2[:,int(output_dims[1]/2):] = img_2[:,int(output_dims[1]/2):0:-1]
+        layer_1[:,int(output_dims[1]/2):0:-1] = abs(layer_1[:,int(output_dims[1]/2):]-1)
+        layer_2[:,int(output_dims[1]/2):0:-1] = abs(layer_2[:,int(output_dims[1]/2):]-1)
+
+    if mirror['right']:
+        img_1[:,int(output_dims[1]/2):0:-1] = img_1[:,int(output_dims[1]/2):]
+        img_2[:,int(output_dims[1]/2):0:-1] = img_2[:,int(output_dims[1]/2):]
+        layer_1[:,int(output_dims[1]/2):0:-1] = abs(layer_1[:,int(output_dims[1]/2):]-1)
+        layer_2[:,int(output_dims[1]/2):0:-1] = abs(layer_2[:,int(output_dims[1]/2):]-1)
 
     # create an image filter from the pattern
     l1 = np.repeat(layer_1.reshape(np.shape(pattern)[0], np.shape(pattern)[1],1),3,axis=2)
