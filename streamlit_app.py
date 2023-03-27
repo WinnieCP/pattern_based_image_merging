@@ -22,7 +22,7 @@ def reshape_img(img, size):
     img = img.resize(np.flip(size))
     return np.array(img)
 
-def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = None, threshold = 100):
+def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = None, threshold = 100, mirror=True):
     
     # reshape pattern to output dimensions
     pattern = reshape_img(pattern, output_dims)
@@ -36,6 +36,13 @@ def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = No
     # reshape the input images to output dimensions
     img_1 =  reshape_img(ImageOps.exif_transpose(images[0]), output_dims)
     img_2 = reshape_img(ImageOps.exif_transpose(images[1]), output_dims)
+
+    if mirror['left']:
+        img_1[:,int(output_dims[0]/2):] = img_1[:,int(output_dims[0]/2):0:-1]
+        img_2[:,int(output_dims[0]/2):] = img_2[:,int(output_dims[0]/2):0:-1]
+    if mirror['right']:
+        img_1[:,int(output_dims[0]/2):0:-1] = img_1[:,int(output_dims[0]/2):]
+        img_2[:,int(output_dims[0]/2):0:-1] = img_2[:,int(output_dims[0]/2):]
 
     # binarize the pattern
     layer_1 = grey_scale_pattern > threshold
@@ -53,18 +60,12 @@ def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = No
 if __name__ == '__main__':
 
     st.title("Pattern-based Image Merging")
-
+    st.subheader('Pattern:')
     # uploading the necessary images
     pattern_file_buffer = st.file_uploader('Upload a black and white pattern as png, jpeg, webp here.') # Extend to multi colors (with input on how many? in that case kmeans)
+    st.subheader('Images:')
     img_file_buffer = st.file_uploader('Upload two images that you want to merge. By default, the first will replace the white and the second the black areas in your pattern image. This behavior can be reversed with the switch toggle that will appear below on the right after upload.', accept_multiple_files=True) # what if only one is given? Or too many?
-
-    # merging the images
-    if img_file_buffer and pattern_file_buffer:
-        image_from_file = [Image.open(i).convert('RGB') for i in img_file_buffer]
-        pattern = Image.open(pattern_file_buffer).convert('RGB')
-        width = st.slider('Width of resulting image in pixel:', min_value=50, max_value=2000, value=1000, step=10)
-        height = st.slider('Height of resulting image in pixel:', min_value=50, max_value=2000, value=1000, step=10)
-        inverted = tog.st_toggle_switch(label="Change order of images", 
+    inverted = tog.st_toggle_switch(label="Change order of images", 
                     key="invert", 
                     default_value=False, 
                     label_after = False, 
@@ -72,10 +73,34 @@ if __name__ == '__main__':
                     active_color="#11567f", 
                     track_color="#29B5E8"
                     )
+    mirror_images_left = tog.st_toggle_switch(label="Mirror images, keeping left side.", 
+                    key="mirror_left", 
+                    default_value=False, 
+                    label_after = False, 
+                    inactive_color = '#D3D3D3', 
+                    active_color="#11567f", 
+                    track_color="#29B5E8"
+                    )
+    mirror_images_right = tog.st_toggle_switch(label="Mirror images, keeping right side", 
+                    key="mirror_right", 
+                    default_value=False, 
+                    label_after = False, 
+                    inactive_color = '#D3D3D3', 
+                    active_color="#11567f", 
+                    track_color="#29B5E8"
+                    )
+    # merging the images
+    if img_file_buffer and pattern_file_buffer:
+        image_from_file = [Image.open(i).convert('RGB') for i in img_file_buffer]
+        pattern = Image.open(pattern_file_buffer).convert('RGB')
+        width = st.slider('Width of resulting image in pixel:', min_value=50, max_value=2000, value=1000, step=10)
+        height = st.slider('Height of resulting image in pixel:', min_value=50, max_value=2000, value=1000, step=10)
+        
         if inverted:
             image_from_file.reverse()
         if st.button("merge images", type="primary"):      
-            new_image = create_image_merge(image_from_file, pattern, output_dims=(width, height))
+            new_image = create_image_merge(image_from_file, pattern, output_dims=(width, height), 
+                                           mirror={'left':mirror_images_left, 'right':mirror_images_right})
             plt.imshow(new_image)
             plt.axis('off')
             fig = plt.gcf()
