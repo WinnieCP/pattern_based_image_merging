@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
 from io import BytesIO
-import  streamlit_toggle as tog
+import streamlit_toggle as tog
 
 def reshape_img(img, size):
     '''
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     st.title("Pattern-based Image Merging")
 
     # uploading the necessary images
-    img_file_buffer = st.file_uploader('Upload two images that you want to merge.', accept_multiple_files=True) # what if only one is given? Or too many?
     pattern_file_buffer = st.file_uploader('Upload a black and white pattern as png, jpeg, webp here.') # Extend to multi colors (with input on how many? in that case kmeans)
+    img_file_buffer = st.file_uploader('Upload two images that you want to merge. By default, the first will replace the white and the second the black areas in your pattern image. This behavior can be reversed with the switch toggle that will appear below on the right after upload.', accept_multiple_files=True) # what if only one is given? Or too many?
 
     # merging the images
     if img_file_buffer and pattern_file_buffer:
