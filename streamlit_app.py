@@ -38,11 +38,11 @@ def create_image_merge(images, pattern, output_dims = (1000,1000), out_path = No
     img_2 = reshape_img(ImageOps.exif_transpose(images[1]), output_dims)
 
     if mirror['left']:
-        img_1[:,int(output_dims[0]/2):] = img_1[:,int(output_dims[0]/2):0:-1]
-        img_2[:,int(output_dims[0]/2):] = img_2[:,int(output_dims[0]/2):0:-1]
+        img_1[:,int(output_dims[1]/2):] = img_1[:,int(output_dims[1]/2):0:-1]
+        img_2[:,int(output_dims[1]/2):] = img_2[:,int(output_dims[1]/2):0:-1]
     if mirror['right']:
-        img_1[:,int(output_dims[0]/2):0:-1] = img_1[:,int(output_dims[0]/2):]
-        img_2[:,int(output_dims[0]/2):0:-1] = img_2[:,int(output_dims[0]/2):]
+        img_1[:,int(output_dims[1]/2):0:-1] = img_1[:,int(output_dims[1]/2):]
+        img_2[:,int(output_dims[1]/2):0:-1] = img_2[:,int(output_dims[1]/2):]
 
     # binarize the pattern
     layer_1 = grey_scale_pattern > threshold
