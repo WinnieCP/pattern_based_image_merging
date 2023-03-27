@@ -10,6 +10,7 @@ pillow = "*"
 matplotlib = "*"
 streamlit-toggle-switch = "*"
 importlib-resources = "*"
+pandas = "*"
 
 [dev-packages]
 
