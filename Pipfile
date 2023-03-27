@@ -9,6 +9,7 @@ numpy = "*"
 pillow = "*"
 matplotlib = "*"
 streamlit-toggle-switch = "*"
+importlib-resources = "*"
 
 [dev-packages]
 
